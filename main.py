@@ -1,4 +1,4 @@
-from pydantic import BaseModel, HttpUrl, Field
+from pydantic import BaseModel, Field
 from typing import Optional
 import streamlit as st
 from textwrap import dedent

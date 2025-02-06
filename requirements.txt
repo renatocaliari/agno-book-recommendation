@@ -1,0 +1,6 @@
+pydantic
+streamlit
+python-dotenv
+pandas
+agno
+exa-py
