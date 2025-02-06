@@ -104,14 +104,13 @@ book_recommendation_agent = Agent(
 )
 
 prompt_recommendation_agent = Agent(
-    name="PromptShelfie", # Changed agent name to avoid confusion
+    name="Prompts", # Changed agent name to avoid confusion
     model=MODEL_GEMINI,
     description=dedent("""\
-        You are a specialist in writing prompts for the book given to you.
+        You are a specialist in writing prompts for explore similar books.
                        
-        Your mission is to help discover their next custom prompts to find related books.
-        You will be given a book and you will have to create prompts to find similar books.
-        You will have to create prompts for the following types of similarity:
+        Your mission is to help discover next custom prompts to find related books to the title book given to you.
+        You will have to create prompts exploring types of similarity related to the title book given to you (be specific):
         - Genre & themes
         - Author & writing style
         - Plot & characters
@@ -134,6 +133,8 @@ if "prompt_text" not in st.session_state:
 
 st.set_page_config(layout="wide")
 st.sidebar.title("Book Recommendation")
+prompt_options = ["Find similar books", "Enter custom prompt"]
+choice = st.sidebar.radio("Choose an option:", prompt_options, key="choice_radio", index=prompt_options.index(st.session_state.choice))
 
 if st.sidebar.button("Search"):
     with st.spinner("Searching for recommendations... 🔍"):
@@ -161,12 +162,6 @@ if st.sidebar.button("Search"):
             st.text(f"Raw response book error: {response.content if 'response' in locals() else 'No response'}") # Debugging
 
 
-prompt_options = ["Find similar books", "Enter custom prompt"]
-
-
-choice = st.sidebar.radio("Choose an option:", prompt_options, key="choice_radio", index=prompt_options.index(st.session_state.choice))
-
-
 if choice == "Find similar books":
     book_title = st.sidebar.text_input("Enter the book title:")
     prompt = f"I really enjoyed {book_title}, can you suggest similar books?"
@@ -175,16 +170,16 @@ elif choice == "Enter custom prompt":
     st.session_state.prompt_text = st.sidebar.text_area("Enter your custom prompt:", height=100, key="custom_prompt_textarea", value=st.session_state.prompt_text)
 
 
-# Ensure the "Search" button is always visible at the bottom of the sidebar
-st.sidebar.markdown("""
-    <style>
-    .stButton {
-        position: fixed;
-        bottom: 10px;
-        width: 100%;
-    }
-    </style>
-    """, unsafe_allow_html=True)
+# # Ensure the "Search" button is always visible at the bottom of the sidebar
+# st.sidebar.markdown("""
+#     <style>
+#     .stButton {
+#         position: fixed;
+#         bottom: 10px;
+#         width: 100%;
+#     }
+#     </style>
+#     """, unsafe_allow_html=True)
 
 # Display example prompts conditionally
 if choice == "Enter custom prompt":
