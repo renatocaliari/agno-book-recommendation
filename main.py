@@ -136,6 +136,14 @@ st.sidebar.title("Book Recommendation")
 prompt_options = ["Find similar books", "Enter custom prompt"]
 choice = st.sidebar.radio("Choose an option:", prompt_options, key="choice_radio", index=prompt_options.index(st.session_state.choice))
 
+if choice == "Find similar books":
+    book_title = st.sidebar.text_input("Enter the book title:")
+    prompt = f"I really enjoyed {book_title}, can you suggest similar books?"
+    st.session_state.prompt_text = prompt
+elif choice == "Enter custom prompt":
+    st.session_state.prompt_text = st.sidebar.text_area("Enter your custom prompt:", height=100, key="custom_prompt_textarea", value=st.session_state.prompt_text)
+
+
 if st.sidebar.button("Search"):
     with st.spinner("Searching for recommendations... 🔍"):
         try:
@@ -160,14 +168,6 @@ if st.sidebar.button("Search"):
         except Exception as e:  # Catch any exception for better error handling
             st.error(f"Error during book recommendation: {e}")
             st.text(f"Raw response book error: {response.content if 'response' in locals() else 'No response'}") # Debugging
-
-
-if choice == "Find similar books":
-    book_title = st.sidebar.text_input("Enter the book title:")
-    prompt = f"I really enjoyed {book_title}, can you suggest similar books?"
-    st.session_state.prompt_text = prompt
-elif choice == "Enter custom prompt":
-    st.session_state.prompt_text = st.sidebar.text_area("Enter your custom prompt:", height=100, key="custom_prompt_textarea", value=st.session_state.prompt_text)
 
 
 # # Ensure the "Search" button is always visible at the bottom of the sidebar
