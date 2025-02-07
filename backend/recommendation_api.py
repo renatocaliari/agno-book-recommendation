@@ -1,4 +1,5 @@
 from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 from typing import Optional, List
 import os
@@ -16,8 +17,15 @@ API_KEY_GEMINI = os.getenv('API_KEY_GEMINI')
 API_KEY_EXA = os.getenv('API_KEY_EXA')
 API_KEY_TMDB = os.getenv('API_KEY_TMDB')
 
-# Initialize FastAPI
 app = FastAPI(title="Media Recommendation API")
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Você ajustará isso depois
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # Models for Books
 class Book(BaseModel):

@@ -1,6 +1,6 @@
 # Ignore environment files
 .env
 .venv
-cline_docs
+documentation/
 *.md
 __pycache__/
