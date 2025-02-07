@@ -5,3 +5,5 @@ pandas
 agno
 exa-py
 google-generativeai
+fastapi
+uvicorn
