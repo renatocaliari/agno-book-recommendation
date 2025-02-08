@@ -7,3 +7,4 @@ exa-py
 google-generativeai
 fastapi
 uvicorn
+slowapi

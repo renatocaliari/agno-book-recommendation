@@ -11,3 +11,5 @@ services:
         sync: false
       - key: API_KEY_TMDB
         sync: false
+      - key: CLIENT_API_KEY
+        sync: false  # Gere uma chave forte e adicione no dashboard do Render

@@ -1,4 +1,5 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Security, Depends
+from fastapi.security.api_key import APIKeyHeader, APIKey
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 from typing import Optional, List
@@ -16,6 +17,7 @@ load_dotenv()
 API_KEY_GEMINI = os.getenv('API_KEY_GEMINI')
 API_KEY_EXA = os.getenv('API_KEY_EXA')
 API_KEY_TMDB = os.getenv('API_KEY_TMDB')
+API_KEY = os.getenv('CLIENT_API_KEY')  # Adicione esta key no render.yaml
 
 app = FastAPI(title="Media Recommendation API")
 
@@ -142,7 +144,10 @@ video_recommendation_agent = Agent(
 
 # Book API Endpoints
 @app.post("/books/recommendations/similar", response_model=ListBooks)
-async def get_similar_books(request: BookRequest):
+async def get_similar_books(
+    request: BookRequest,
+    api_key: APIKey = Depends(get_api_key)
+):
     try:
         prompt = f"I really enjoyed {request.book_title}, can you suggest similar books?"
         response = book_recommendation_agent.run(prompt, stream=False)
