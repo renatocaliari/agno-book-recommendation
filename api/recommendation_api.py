@@ -5,7 +5,7 @@ from slowapi import Limiter, _rate_limit_exceeded_handler
 from slowapi.util import get_remote_address
 from slowapi.errors import RateLimitExceeded
 from pydantic import BaseModel, Field
-from typing import Optional, List
+from typing import Optional
 import os
 from dotenv import load_dotenv
 from textwrap import dedent
@@ -53,7 +53,7 @@ app.add_middleware(
 class Book(BaseModel):
     title: str = Field(..., description="The title of the book")
     author: str = Field(..., description="The author of the book")
-    similarity_type: str = Field(..., description="The type of similarity")
+    similarity_type: str = Field(..., description="The type of similarity: genre & themes, author & writing style, plot & characters")
     publication_year: str = Field(..., description="The publication year")
     explanation: str = Field(..., description="The explanation: why the book is similar?")
     genre: list[str] = Field(..., description="The genre of the book starting with emojis representing the genre")
@@ -65,14 +65,13 @@ class Book(BaseModel):
     content_advisories: Optional[list[str]] = Field(None, description="The content advisories")
     awards: Optional[list[str]] = Field(None, description="The awards")
     series_info: Optional[str] = Field(None, description="The series information")
-    similar_authors: Optional[list[str]] = Field(None, description="The similar authors")
     audiobook_available: Optional[bool] = Field(None, description="Audiobook availability")
     upcoming_adaptations: Optional[str] = Field(None, description="Upcoming adaptations")
     diversity_highlight: Optional[str] = Field(None, description="Diversity highlight")
     trigger_warnings: Optional[list[str]] = Field(None, description="Trigger warnings")
 
 class ListBooks(BaseModel):
-    books: List[Book]
+    books: list[Book]
 
 class BookRequest(BaseModel):
     book_title: str = Field(..., description="The title of the book to find recommendations for")
@@ -87,6 +86,7 @@ class Prompts(BaseModel):
 class Video(BaseModel):
     title: str = Field(..., description="The title of the movie or TV show")
     type: str = Field(..., description="Whether it's a 'Movie' or 'TV Show'")
+    similarity_type: str = Field(..., description="The type of similarity: genre & themes, author & writing style, plot & characters")
     explanation: str = Field(..., description="The explanation: why that movie or tv show is similar?")
     directors: Optional[list[str]] = Field(None, description="The director(s) of the movie or TV show")
     actors: list[str] = Field(..., description="The main actors in the movie or TV show")
@@ -99,11 +99,10 @@ class Video(BaseModel):
     content_advisories: Optional[list[str]] = Field(None, description="Content advisories")
     awards: Optional[list[str]] = Field(None, description="Awards won")
     series_season: Optional[str] = Field(None, description="How many seasons? (if applicable)")
-    similar_videos: Optional[list[str]] = Field(None, description="Similar movies or TV shows")
     streaming_services: Optional[list[str]] = Field(None, description="Where it's streaming")
 
 class ListVideos(BaseModel):
-    videos: List[Video]
+    videos: list[Video]
 
 class VideoRequest(BaseModel):
     title: str = Field(..., description="The title of the video to find recommendations for")
@@ -132,7 +131,7 @@ book_recommendation_agent = Agent(
     response_model=ListBooks,
     add_datetime_to_instructions=True,
     show_tool_calls=True,
-)
+) 
 
 prompt_recommendation_agent = Agent(
     name="Prompts",
