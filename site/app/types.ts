@@ -1,4 +1,4 @@
-export type MediaType = "book" | "movie" | "tvshow"
+export type MediaType = "book" | "movie" | "tv show"
 
 export type SearchResult = {
   id: string

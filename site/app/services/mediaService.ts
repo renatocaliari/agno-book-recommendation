@@ -30,9 +30,9 @@ const fetchBooksData = async (query: string): Promise<SearchResult[]> => {
     }
 
     const data = await response.json();
-    console.log('Raw Book API Response:', JSON.stringify(data, null, 2));
-    
-    return data.books.map((book: any) => ({
+    console.log('API Response:', data); // Adicionar log para debug
+
+    return data.map((book: any) => ({
       id: book.title || 'Unknown',
       title: book.title || 'Unknown',
       author: book.author || 'Unknown',
@@ -79,9 +79,9 @@ const fetchMoviesData = async (query: string): Promise<SearchResult[]> => {
     }
 
     const data = await response.json();
-    console.log('Raw Video API Response:', JSON.stringify(data, null, 2));
-    
-    return data.videos.map((video: any) => ({
+    console.log('API Response:', data); // Adicionar log para debug
+
+    return data.map((video: any) => ({
       id: video.title || 'Unknown',
       title: video.title || 'Unknown',
       type: video.type || 'Movie',

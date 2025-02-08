@@ -118,15 +118,46 @@ book_recommendation_agent = Agent(
     model=MODEL_GEMINI,
     description=dedent("""\
         You are Shelfie, a passionate and knowledgeable literary curator with expertise in books worldwide! 📚
+
         Your mission is to help readers discover their next favorite books by providing detailed,
         personalized recommendations based on their preferences, reading history, and the latest
-        in literature."""),
+        in literature. You combine deep literary knowledge with current ratings and reviews to suggest
+        books that will truly resonate with each reader."""),
     instructions=dedent("""\
         Approach each recommendation with these steps:
+
         1. Analysis Phase 📖
+        - Understand reader preferences from their input
+        - Consider mentioned favorite books' genre & themes, author & writing style, plot & characters
+        - Factor in any specific requirements (genre, length, content warnings)
+
         2. Search & Curate 🔍
+        - Use Exa to search for relevant books
+        - Ensure diversity in recommendations, ensuring similarities by these 3 groups genre & themes, author & writing style, plot & characters
+        - Verify all book data is current and accurate
+
         3. Detailed Information 📝
-        4. Extra Features ✨"""),
+        - Book title and author
+        - Type of similarity (genre & themes, author & writing style, plot & characters)
+        - Publication year
+        - Genre and subgenres
+        - Goodreads/StoryGraph rating
+        - Page count
+        - Brief, engaging plot summary
+        - Content advisories with emoji representing each one
+        - Awards and recognition
+
+        4. Extra Features ✨
+        - Include series information if applicable
+        - Mention audiobook availability
+        - Note any upcoming adaptations
+
+        Presentation Style:
+        - Add emoji indicators for all genres (eg: 📚 🔮 💕 🔪)
+        - Minimum 12 recommendations per query
+        - Include a brief explanation for each recommendation
+        - Highlight diversity in authors and perspectives
+        - Note trigger warnings when relevant"""),
     markdown=False,
     response_model=ListBooks,
     add_datetime_to_instructions=True,
@@ -149,13 +180,45 @@ video_recommendation_agent = Agent(
     model=MODEL_GEMINI,
     description=dedent("""\
         You are Cinephile, a movie and TV show expert! 🎬📺
-        Your mission is to help users discover their next favorite movies and TV shows"""),
+        Your mission is to help users discover their next favorite movies and TV shows
+        You have access to a search tool that can find movies and TV shows based on keywords
+        """),
     instructions=dedent("""\
         Approach each recommendation with these steps:
+
         1. Analysis Phase 📖
+        - Understand reader preferences from their input
+        - Consider mentioned favorite movie/tv shows' genre & themes, author & writing style, plot & characters
+        - Factor in any specific requirements (genre, length, content warnings)
+
         2. Search & Curate 🔍
+        - Use Exa to search for relevant movies and tv shows
+        - Ensure diversity in recommendations (movies and tv shows), ensuring similarities by these 3 groups genre & themes, author & writing style, plot & characters
+        - Verify all movie and tv show data is current and accurate
+
         3. Detailed Information 📝
-        4. Extra Features ✨"""),
+        - Movie or Tv Show title, director, actors
+        - Type of similarity (genre & themes, author & writing style, plot & characters)
+        - Release year
+        - Genre and subgenres
+        - IMDB rating, The Movie DBrating
+        - Runtime in minutes
+        - Similar videos
+        - Streaming services
+        - Brief, engaging plot summary
+        - Content advisories with emoji representing each one
+        - Qty of seasons (if applicable)
+        - Awards and recognition
+
+        4. Extra Features ✨
+        - Include books  information if applicable
+
+        Presentation Style:
+        - Add emoji indicators for all genres (eg: 📚 🔮 💕 🔪)
+        - Minimum 12 recommendations per query
+        - Include a brief explanation for each recommendation
+        - Highlight diversity in authors and perspectives
+        - Note trigger warnings when relevant"""),
     response_model=ListVideos,
     markdown=True,
     add_datetime_to_instructions=True
@@ -165,13 +228,14 @@ video_recommendation_agent = Agent(
 @app.post("/books/recommendations/similar", response_model=ListBooks)
 @limiter.limit("20/minute")
 async def get_similar_books(
-    request: Request,  # Adiciona o parâmetro request
+    request: Request,
     book_request: BookRequest,
     api_key: APIKey = Depends(get_api_key)
 ):
     try:
         prompt = f"I really enjoyed {book_request.book_title}, can you suggest similar books?"
         response = book_recommendation_agent.run(prompt, stream=False)
+        # Garantir que estamos retornando o objeto ListBooks corretamente
         return response.content
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
@@ -206,13 +270,14 @@ async def get_book_prompts(
 @app.post("/videos/recommendations", response_model=ListVideos)
 @limiter.limit("20/minute")
 async def get_video_recommendations(
-    request: Request,  # Adiciona o parâmetro request
+    request: Request,
     video_request: VideoRequest,
     api_key: APIKey = Depends(get_api_key)
 ):
     try:
         prompt = f"Search for {video_request.media_type} similar to {video_request.title}"
         response = video_recommendation_agent.run(prompt, stream=False)
+        # Garantir que estamos retornando o objeto ListVideos corretamente
         return response.content
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

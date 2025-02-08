@@ -3,19 +3,42 @@ import type { MediaType, SearchResult } from "../types"
 import DetailedView from "./DetailedView"
 import { Maximize2 } from "lucide-react"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
+import ResultsSkeleton from "./ResultsSkeleton"
 
 type ResultsListProps = {
   results: SearchResult[]
   mediaType: MediaType
+  isLoading: boolean
 }
 
-const getMediaColor = (type: MediaType, index: number): string => {
+const getMediaColor = (type: MediaType, index: number): { bg: string, text: string } => {
   const colors = {
-    book: ["bg-purple-600", "bg-indigo-600", "bg-violet-600"],
-    movie: ["bg-blue-600", "bg-cyan-600", "bg-sky-600"],
-    tvshow: ["bg-emerald-600", "bg-green-600", "bg-teal-600"],
+    book: [
+      { bg: "bg-purple-600", text: "text-white" },
+      { bg: "bg-yellow-400", text: "text-black" },
+      { bg: "bg-blue-600", text: "text-white" },
+      { bg: "bg-green-400", text: "text-black" },
+      { bg: "bg-red-600", text: "text-white" },
+      { bg: "bg-orange-400", text: "text-black" },
+    ],
+    movie: [
+      { bg: "bg-emerald-600", text: "text-white" },
+      { bg: "bg-pink-400", text: "text-black" },
+      { bg: "bg-indigo-600", text: "text-white" },
+      { bg: "bg-amber-400", text: "text-black" },
+      { bg: "bg-cyan-600", text: "text-white" },
+      { bg: "bg-lime-400", text: "text-black" },
+    ],
+    "tv show": [
+      { bg: "bg-red-600", text: "text-white" },
+      { bg: "bg-teal-400", text: "text-black" },
+      { bg: "bg-violet-600", text: "text-white" },
+      { bg: "bg-yellow-400", text: "text-black" },
+      { bg: "bg-blue-600", text: "text-white" },
+      { bg: "bg-green-400", text: "text-black" },
+    ],
   }
-  return colors[type][index % 3]
+  return colors[type][index % colors[type].length]
 }
 
 const getMediaEmoji = (type: MediaType) => {
@@ -24,85 +47,88 @@ const getMediaEmoji = (type: MediaType) => {
       return "📚"
     case "movie":
       return "🎬"
-    case "tvshow":
+    case "tv show":
       return "📺"
     default:
       return "🔍"
   }
 }
 
-export default function ResultsList({ results, mediaType }: ResultsListProps) {
+export default function ResultsList({ results, mediaType, isLoading }: ResultsListProps) {
   const [selectedItem, setSelectedItem] = useState<SearchResult | null>(null)
+
+  if (isLoading) {
+    return <ResultsSkeleton />
+  }
 
   return (
     <TooltipProvider>
       <div>
         {results.length > 0 && (
-          <h2 className="text-4xl font-bold mb-6 text-black border-b-4 border-black pb-2 flex items-center">
+          <h2 className="text-3xl sm:text-4xl font-bold mb-4 sm:mb-6 text-black border-b-4 border-black pb-2 flex items-center">
             <span className="mr-2">{getMediaEmoji(mediaType)}</span>
             Similar {mediaType}s
           </h2>
         )}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {results.map((item, index) => (
-            <div
-              key={item.id}
-              className="relative bg-white border-4 border-black cursor-pointer group transition-transform hover:-translate-y-1 hover:shadow-xl"
-              onClick={() => setSelectedItem(item)}
-            >
-              {/* Header with colored background */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+          {results.map((item, index) => {
+            const colorStyle = getMediaColor(mediaType, index)
+            return (
               <div
-                className={`${getMediaColor(mediaType, index)} p-6 min-h-[200px] flex items-center justify-center relative`}
+                key={item.id}
+                className="relative bg-white border-4 border-black cursor-pointer group transition-transform hover:-translate-y-1 hover:shadow-xl overflow-hidden"
+                onClick={() => setSelectedItem(item)}
               >
-                <h3 className="text-3xl font-bold text-white text-center font-display leading-tight">{item.title}</h3>
-                <div className="absolute top-2 right-2 bg-black text-white px-2 py-1 rounded-full font-bold border-2 border-white">
-                  ⭐ {item.rating}
+                <div
+                  className={`${colorStyle.bg} ${colorStyle.text} p-4 sm:p-6 min-h-[150px] sm:min-h-[200px] flex items-center justify-center relative`}
+                >
+                  <h3 className="text-2xl sm:text-3xl font-bold text-white text-center font-display leading-tight">{item.title}</h3>
+                  <div className="absolute top-2 right-2 bg-black text-white px-2 py-1 rounded-full font-bold border-2 border-white text-sm sm:text-base">
+                    ⭐ {item.rating}
+                  </div>
                 </div>
-              </div>
 
-              {/* Tags section */}
-              <div className="p-4 space-y-2">
-                <div className="flex flex-wrap gap-2">
-                  <Tooltip>
-                    <TooltipTrigger>
-                      <span className="bg-black text-white px-2 py-1 text-sm font-bold">{item.year}</span>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p>Year of {mediaType === "book" ? "publication" : "release"}</p>
-                    </TooltipContent>
-                  </Tooltip>
-
-                  <Tooltip>
-                    <TooltipTrigger>
-                      <span className="bg-black text-white px-2 py-1 text-sm font-bold">{item.genre}</span>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p>Genre</p>
-                    </TooltipContent>
-                  </Tooltip>
-
-                  {(mediaType === "movie" || mediaType === "tvshow") && item.streamingOn && (
+                <div className="p-3 sm:p-4 space-y-2">
+                  <div className="flex flex-wrap gap-2">
                     <Tooltip>
                       <TooltipTrigger>
-                        <span className="bg-black text-white px-2 py-1 text-sm font-bold">{item.streamingOn}</span>
+                        <span className="bg-black text-white px-2 py-1 text-sm font-bold">{item.year}</span>
                       </TooltipTrigger>
                       <TooltipContent>
-                        <p>Available on</p>
+                        <p>Year of {mediaType === "book" ? "publication" : "release"}</p>
                       </TooltipContent>
                     </Tooltip>
-                  )}
+
+                    <Tooltip>
+                      <TooltipTrigger>
+                        <span className="bg-black text-white px-2 py-1 text-sm font-bold">{item.genre}</span>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>Genre</p>
+                      </TooltipContent>
+                    </Tooltip>
+
+                    {(mediaType === "movie" || mediaType === "tv show") && item.streamingOn && (
+                      <Tooltip>
+                        <TooltipTrigger>
+                          <span className="bg-black text-white px-2 py-1 text-sm font-bold">{item.streamingOn}</span>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>Available on</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    )}
+                  </div>
+
+                  <p className="mt-2 sm:mt-3 text-sm border-t-2 border-black pt-2 sm:pt-3">{item.similarityJustification}</p>
                 </div>
 
-                {/* Similarity justification */}
-                <p className="mt-3 text-sm border-t-2 border-black pt-3">{item.similarityJustification}</p>
+                <div className="absolute top-2 left-2 bg-white text-black p-1 rounded-full border-2 border-black opacity-0 group-hover:opacity-100 transition-opacity">
+                  <Maximize2 size={20} />
+                </div>
               </div>
-
-              {/* Expand icon */}
-              <div className="absolute top-2 left-2 bg-white text-black p-1 rounded-full border-2 border-black opacity-0 group-hover:opacity-100 transition-opacity">
-                <Maximize2 size={20} />
-              </div>
-            </div>
-          ))}
+            )
+          })}
         </div>
         {selectedItem && (
           <DetailedView
@@ -111,8 +137,8 @@ export default function ResultsList({ results, mediaType }: ResultsListProps) {
             mediaType={mediaType}
             colorClass={getMediaColor(
               mediaType,
-              results.findIndex((r) => r.id === selectedItem.id),
-            )}
+              results.findIndex((r) => r.id === selectedItem.id)
+            ).bg}
           />
         )}
       </div>
