@@ -17,8 +17,62 @@ export default function DetailedView({ item, onClose, mediaType, colorClass }: D
           {/* Colored header section */}
           <div className={`${colorClass} p-8 relative`}>
             <h2 className="text-5xl font-bold text-white text-center font-display mb-4">{item.title}</h2>
-            <div className="absolute top-4 right-4 bg-black text-white px-3 py-2 rounded-full font-bold border-2 border-white">
-              ⭐ {item.rating}
+            <div className="absolute top-4 right-4 flex gap-2">
+              {mediaType === "book" ? (
+                <>
+                  {item.goodreadsRating && (
+                    <Tooltip>
+                      <TooltipTrigger>
+                        <span className="bg-black text-white px-3 py-2 rounded-full font-bold border-2 border-white">
+                        ⭐ {item.goodreadsRating.toFixed(1)} GR
+                        </span>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>Goodreads Rating</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  )}
+                  {item.storygraphRating && (
+                    <Tooltip>
+                      <TooltipTrigger>
+                        <span className="bg-black text-white px-3 py-2 rounded-full font-bold border-2 border-white">
+                          ⭐ {item.storygraphRating.toFixed(1)} SG
+                        </span>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>StoryGraph Rating</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  )}
+                </>
+              ) : (
+                <>
+                  {item.imdbRating && (
+                    <Tooltip>
+                      <TooltipTrigger>
+                        <span className="bg-black text-white px-3 py-2 rounded-full font-bold border-2 border-white">
+                          ⭐ {item.imdbRating.toFixed(1)} IMDB
+                        </span>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>IMDB Rating</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  )}
+                  {item.tmdbRating && (
+                    <Tooltip>
+                      <TooltipTrigger>
+                        <span className="bg-black text-white px-3 py-2 rounded-full font-bold border-2 border-white">
+                          ⭐ {item.tmdbRating.toFixed(1)} TMDB
+                        </span>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>TMDB Rating</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  )}
+                </>
+              )}
             </div>
             <button
               onClick={onClose}
@@ -50,10 +104,10 @@ export default function DetailedView({ item, onClose, mediaType, colorClass }: D
                 </TooltipContent>
               </Tooltip>
 
-              {(mediaType === "movie" || mediaType === "tv show") && item.streamingOn && (
+              {(mediaType === "movie" || mediaType === "tv show") && (item.streamingServices ?? []).length > 0 && (
                 <Tooltip>
                   <TooltipTrigger>
-                    <span className="bg-black text-white px-3 py-2 text-base font-bold">{item.streamingOn}</span>
+                    <span className="bg-black text-white px-3 py-2 text-base font-bold">{item.streamingServices?.[0]}</span>
                   </TooltipTrigger>
                   <TooltipContent>
                     <p>Available on</p>

@@ -84,7 +84,9 @@ export default function ResultsList({ results, mediaType, isLoading }: ResultsLi
                 >
                   <h3 className="text-2xl sm:text-3xl font-bold text-white text-center font-display leading-tight">{item.title}</h3>
                   <div className="absolute top-2 right-2 bg-black text-white px-2 py-1 rounded-full font-bold border-2 border-white text-sm sm:text-base">
-                    ⭐ {item.rating}
+                  ⭐ {mediaType === "book" 
+                        ? item.goodreadsRating || item.storygraphRating || "N/A"
+                        : item.imdbRating || item.tmdbRating || "N/A"}
                   </div>
                 </div>
 
@@ -99,25 +101,27 @@ export default function ResultsList({ results, mediaType, isLoading }: ResultsLi
                       </TooltipContent>
                     </Tooltip>
 
-                    <Tooltip>
-                      <TooltipTrigger>
-                        <span className="bg-black text-white px-2 py-1 text-sm font-bold">{item.genre}</span>
-                      </TooltipTrigger>
-                      <TooltipContent>
-                        <p>Genre</p>
-                      </TooltipContent>
-                    </Tooltip>
-
-                    {(mediaType === "movie" || mediaType === "tv show") && item.streamingOn && (
-                      <Tooltip>
+                    {item.genre.map((genreItem, genreIndex) => (
+                      <Tooltip key={genreIndex}>
                         <TooltipTrigger>
-                          <span className="bg-black text-white px-2 py-1 text-sm font-bold">{item.streamingOn}</span>
+                          <span className="bg-black text-white px-2 py-1 text-sm font-bold">{genreItem}</span>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>Genre</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    ))}
+
+                    {(mediaType === "movie" || mediaType === "tv show") && item.streamingServices && item.streamingServices.length > 0 && item.streamingServices.map((service, index) => (
+                      <Tooltip key={index}>
+                        <TooltipTrigger>
+                          <span className="bg-black text-white px-2 py-1 text-sm font-bold">{service}</span>
                         </TooltipTrigger>
                         <TooltipContent>
                           <p>Available on</p>
                         </TooltipContent>
                       </Tooltip>
-                    )}
+                    ))}
                   </div>
 
                   <p className="mt-2 sm:mt-3 text-sm border-t-2 border-black pt-2 sm:pt-3">{item.similarityJustification}</p>

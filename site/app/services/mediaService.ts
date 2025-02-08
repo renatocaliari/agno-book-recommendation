@@ -5,7 +5,8 @@ interface BookResponse {
   author: string;
   publication_year: string;
   genre: string[];
-  rating: string;
+  goodreads_rating?: string;
+  storygraph_rating?: string;
   page_count: string;
   plot_summary: string;
   content_advisories: string[];
@@ -15,6 +16,8 @@ interface BookResponse {
   upcoming_adaptations?: string;
   similarity_type: string;
   explanation: string;
+  diversity_highlight?: string;
+  trigger_warnings?: string[];
 }
 
 interface VideoResponse {
@@ -82,8 +85,9 @@ const fetchBooksData = async (query: string): Promise<SearchResult[]> => {
       title: book.title || 'Unknown',
       type: 'book' as MediaType,
       year: book.publication_year ? parseInt(book.publication_year) : 0,
-      rating: parseFloat(book.rating) || 0,
-      genre: Array.isArray(book.genre) ? book.genre.join(', ') : 'Unknown',
+      goodreadsRating: book.goodreads_rating ? parseFloat(book.goodreads_rating) : undefined,
+      storygraphRating: book.storygraph_rating ? parseFloat(book.storygraph_rating) : undefined,
+      genre: book.genre || [],
       similarityType: ((): "plot & characters" | "genre & themes" | "author & writing style" => {
         switch(book.similarity_type?.toLowerCase()) {
           case "genre & themes":
@@ -98,11 +102,13 @@ const fetchBooksData = async (query: string): Promise<SearchResult[]> => {
       details: book.plot_summary || 'No details available',
       author: book.author,
       pageCount: book.page_count ? parseInt(book.page_count) : undefined,
-      contentAdvisories: Array.isArray(book.content_advisories) ? book.content_advisories : [],
-      awards: Array.isArray(book.awards) ? book.awards : [],
+      contentAdvisories: book.content_advisories || [],
+      awards: book.awards || [],
       seriesInfo: book.series_info,
       audiobookAvailable: book.audiobook_available,
-      upcomingAdaptations: book.upcoming_adaptations
+      upcomingAdaptations: book.upcoming_adaptations,
+      diversityHighlight: book.diversity_highlight,
+      triggerWarnings: book.trigger_warnings || []
     }));
   } catch (error) {
     console.error('Error fetching books:', error instanceof Error ? error.message : 'Unknown error');
@@ -139,8 +145,9 @@ const fetchMoviesData = async (query: string): Promise<SearchResult[]> => {
       title: video.title || 'Unknown',
       type: video.type as MediaType || 'Movie',
       year: video.release_year ? parseInt(video.release_year) : 0,
-      rating: video.imdb_rating || video.tmdb_rating || 0,
-      genre: Array.isArray(video.genre) ? video.genre.join(', ') : 'Unknown',
+      imdbRating: video.imdb_rating,
+      tmdbRating: video.tmdb_rating,
+      genre: video.genre || [],
       similarityType: ((): "plot & characters" | "genre & themes" | "author & writing style" => {
         switch(video.similarity_type?.toLowerCase()) {
           case "genre & themes":
@@ -153,14 +160,11 @@ const fetchMoviesData = async (query: string): Promise<SearchResult[]> => {
       })(),
       similarityJustification: video.explanation || 'No explanation provided',
       details: video.plot_summary || 'No details available',
-      directors: Array.isArray(video.directors) ? video.directors : [],
-      actors: Array.isArray(video.actors) ? video.actors : [],
+      directors: video.directors || [],
+      actors: video.actors || [],
       runtime: video.runtime ? parseInt(video.runtime) : undefined,
-      contentAdvisories: Array.isArray(video.content_advisories) ? video.content_advisories : [],
-      awards: Array.isArray(video.awards) ? video.awards : [],
-      seriesSeason: video.series_season,
-      similarVideos: Array.isArray(video.similar_videos) ? video.similar_videos : [],
-      streamingOn: Array.isArray(video.streaming_services) ? video.streaming_services.join(', ') : ''
+      seasons: video.series_season,
+      streamingServices: video.streaming_services || []
     }));
   } catch (error) {
     console.error('Error fetching movies:', error instanceof Error ? error.message : 'Unknown error');
