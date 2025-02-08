@@ -1,0 +1,10 @@
+pydantic
+streamlit
+python-dotenv
+pandas
+agno
+exa-py
+google-generativeai
+fastapi
+uvicorn
+slowapi

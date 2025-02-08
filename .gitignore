@@ -1,6 +1,5 @@
 # Ignore environment files
 .env
 .venv
-documentation/
 *.md
 __pycache__/
