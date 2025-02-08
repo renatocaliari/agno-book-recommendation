@@ -30,9 +30,10 @@ const fetchBooksData = async (query: string): Promise<SearchResult[]> => {
     }
 
     const data = await response.json();
-    console.log('API Response:', data); // Adicionar log para debug
+    console.log('API Response:', data);
+    const books = data.books || [];
 
-    return data.map((book: any) => ({
+    return books.map((book: any) => ({
       id: book.title || 'Unknown',
       title: book.title || 'Unknown',
       author: book.author || 'Unknown',
@@ -79,9 +80,10 @@ const fetchMoviesData = async (query: string): Promise<SearchResult[]> => {
     }
 
     const data = await response.json();
-    console.log('API Response:', data); // Adicionar log para debug
+    console.log('API Response:', data);
+    const videos = data.videos || [];
 
-    return data.map((video: any) => ({
+    return videos.map((video: any) => ({
       id: video.title || 'Unknown',
       title: video.title || 'Unknown',
       type: video.type || 'Movie',

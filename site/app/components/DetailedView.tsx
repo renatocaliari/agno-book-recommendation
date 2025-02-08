@@ -78,10 +78,10 @@ export default function DetailedView({ item, onClose, mediaType, colorClass }: D
                   {item.seriesInfo && (
                     <Tooltip>
                       <TooltipTrigger>
-                        <span className="bg-black text-white px-3 py-2 text-base font-bold">📚 Series</span>
+                        <span className="bg-black text-white px-3 py-2 text-base font-bold">📚 {item.seriesInfo}</span>
                       </TooltipTrigger>
                       <TooltipContent>
-                        <p>{item.seriesInfo}</p>
+                        <p>Series Information</p>
                       </TooltipContent>
                     </Tooltip>
                   )}
@@ -126,22 +126,10 @@ export default function DetailedView({ item, onClose, mediaType, colorClass }: D
                 </>
               )}
 
-              {/* Common additional tags */}
-              {item.awards?.map((award, index) => (
-                <Tooltip key={index}>
-                  <TooltipTrigger>
-                    <span className="bg-black text-white px-3 py-2 text-base font-bold">{award}</span>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>Award</p>
-                  </TooltipContent>
-                </Tooltip>
-              ))}
-
               {item.contentAdvisories?.map((advisory, index) => (
                 <Tooltip key={index}>
                   <TooltipTrigger>
-                    <span className="bg-black text-white px-3 py-2 text-base font-bold">{advisory}</span>
+                    <span className="bg-black text-white px-3 py-2 text-base font-bold">⚠️ {advisory}</span>
                   </TooltipTrigger>
                   <TooltipContent>
                     <p>Content Advisory</p>
@@ -149,13 +137,12 @@ export default function DetailedView({ item, onClose, mediaType, colorClass }: D
                 </Tooltip>
               ))}
 
-              {/* Adicionar outras tags específicas se necessário */}
               {mediaType === "book" && (
                 <>
                   {item.triggerWarnings?.map((warning, index) => (
                     <Tooltip key={index}>
                       <TooltipTrigger>
-                        <span className="bg-black text-white px-3 py-2 text-base font-bold">{warning}</span>
+                        <span className="bg-black text-white px-3 py-2 text-base font-bold">⚠️ {warning}</span>
                       </TooltipTrigger>
                       <TooltipContent>
                         <p>Trigger Warning</p>
@@ -163,21 +150,10 @@ export default function DetailedView({ item, onClose, mediaType, colorClass }: D
                     </Tooltip>
                   ))}
                   
-                  {item.diversityHighlight && (
-                    <Tooltip>
-                      <TooltipTrigger>
-                        <span className="bg-black text-white px-3 py-2 text-base font-bold">{item.diversityHighlight}</span>
-                      </TooltipTrigger>
-                      <TooltipContent>
-                        <p>Diversity Highlight</p>
-                      </TooltipContent>
-                    </Tooltip>
-                  )}
-
                   {item.upcomingAdaptations && (
                     <Tooltip>
                       <TooltipTrigger>
-                        <span className="bg-black text-white px-3 py-2 text-base font-bold">{item.upcomingAdaptations}</span>
+                        <span className="bg-black text-white px-3 py-2 text-base font-bold">🎬 {item.upcomingAdaptations}</span>
                       </TooltipTrigger>
                       <TooltipContent>
                         <p>Upcoming Adaptation</p>
