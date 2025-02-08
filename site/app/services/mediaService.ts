@@ -60,6 +60,16 @@ const getHeaders = () => ({
   'Content-Type': 'application/json'
 });
 
+export class MediaServiceError extends Error {
+  constructor(
+    message: string,
+    public readonly type: 'API_ERROR' | 'NETWORK_ERROR' | 'CORS_ERROR' | 'UNKNOWN_ERROR'
+  ) {
+    super(message);
+    this.name = 'MediaServiceError';
+  }
+}
+
 const fetchBooksData = async (query: string): Promise<SearchResult[]> => {
   try {
     console.log('Fetching books with query:', query);
@@ -74,11 +84,21 @@ const fetchBooksData = async (query: string): Promise<SearchResult[]> => {
     if (!response.ok) {
       const errorText = await response.text();
       console.error('API Error:', errorText);
-      throw new Error(`HTTP error! status: ${response.status}`);
+      throw new MediaServiceError(
+        'Failed to fetch book recommendations. Please try again later.',
+        'API_ERROR'
+      );
     }
 
     const data: BooksAPIResponse = await response.json();
     console.log('API Response:', data);
+
+    if (!data.books || !Array.isArray(data.books)) {
+      throw new MediaServiceError(
+        'Invalid response format from the server.',
+        'API_ERROR'
+      );
+    }
 
     return data.books.map((book: BookResponse) => ({
       id: book.title || 'Unknown',
@@ -111,8 +131,30 @@ const fetchBooksData = async (query: string): Promise<SearchResult[]> => {
       triggerWarnings: book.trigger_warnings || []
     }));
   } catch (error) {
-    console.error('Error fetching books:', error instanceof Error ? error.message : 'Unknown error');
-    throw new Error(error instanceof Error ? error.message : 'Failed to fetch books');
+    console.error('Error fetching books:', error);
+    
+    if (error instanceof MediaServiceError) {
+      throw error;
+    }
+
+    if (error instanceof TypeError && error.message === 'Failed to fetch') {
+      throw new MediaServiceError(
+        'Unable to connect to the recommendation service. Please check your internet connection.',
+        'NETWORK_ERROR'
+      );
+    }
+
+    if (error instanceof Error && error.message.includes('CORS')) {
+      throw new MediaServiceError(
+        'Service temporarily unavailable. Please try again in a few minutes.',
+        'CORS_ERROR'
+      );
+    }
+
+    throw new MediaServiceError(
+      'An unexpected error occurred. Please try again later.',
+      'UNKNOWN_ERROR'
+    );
   }
 };
 
@@ -132,11 +174,21 @@ const fetchMoviesData = async (query: string): Promise<SearchResult[]> => {
     if (!response.ok) {
       const errorText = await response.text();
       console.error('API Error:', errorText);
-      throw new Error(`HTTP error! status: ${response.status}`);
+      throw new MediaServiceError(
+        'Failed to fetch movie recommendations. Please try again later.',
+        'API_ERROR'
+      );
     }
 
     const data: VideosAPIResponse = await response.json();
     console.log('API Response:', data);
+
+    if (!data.videos || !Array.isArray(data.videos)) {
+      throw new MediaServiceError(
+        'Invalid response format from the server.',
+        'API_ERROR'
+      );
+    }
 
     const videos = data.videos || [];
 
@@ -167,8 +219,30 @@ const fetchMoviesData = async (query: string): Promise<SearchResult[]> => {
       streamingServices: video.streaming_services || []
     }));
   } catch (error) {
-    console.error('Error fetching movies:', error instanceof Error ? error.message : 'Unknown error');
-    throw new Error(error instanceof Error ? error.message : 'Failed to fetch movies');
+    console.error('Error fetching movies:', error);
+    
+    if (error instanceof MediaServiceError) {
+      throw error;
+    }
+
+    if (error instanceof TypeError && error.message === 'Failed to fetch') {
+      throw new MediaServiceError(
+        'Unable to connect to the recommendation service. Please check your internet connection.',
+        'NETWORK_ERROR'
+      );
+    }
+
+    if (error instanceof Error && error.message.includes('CORS')) {
+      throw new MediaServiceError(
+        'Service temporarily unavailable. Please try again in a few minutes.',
+        'CORS_ERROR'
+      );
+    }
+
+    throw new MediaServiceError(
+      'An unexpected error occurred. Please try again later.',
+      'UNKNOWN_ERROR'
+    );
   }
 };
 

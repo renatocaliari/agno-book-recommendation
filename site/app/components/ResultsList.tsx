@@ -61,6 +61,14 @@ export default function ResultsList({ results, mediaType, isLoading }: ResultsLi
     return <ResultsSkeleton />
   }
 
+  if (results.length === 0) {
+    return (
+      <div className="text-center py-12">
+        <p className="text-gray-600">No results found. Try another search!</p>
+      </div>
+    )
+  }
+
   return (
     <TooltipProvider>
       <div>
