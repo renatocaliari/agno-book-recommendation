@@ -86,7 +86,7 @@ export default function DetailedView({ item, onClose, mediaType, colorClass }: D
                     </Tooltip>
                   )}
 
-                  {item.audioBookAvailable && (
+                  {item.audiobookAvailable && (
                     <Tooltip>
                       <TooltipTrigger>
                         <span className="bg-black text-white px-3 py-2 text-base font-bold">🎧 Audiobook</span>
