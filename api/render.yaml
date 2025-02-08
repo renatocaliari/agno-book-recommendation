@@ -15,4 +15,6 @@ services:
       - key: API_KEY_TMDB
         sync: false
       - key: CLIENT_API_KEY
-        sync: false  # Gere uma chave forte e adicione no dashboard do Render
+        sync: false
+      - key: ALLOWED_ORIGINS
+        value: "http://localhost:3000,https://seu-dominio-frontend.com"  # Adicione aqui os domínios permitidos
