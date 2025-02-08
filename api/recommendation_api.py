@@ -1,6 +1,9 @@
 from fastapi import FastAPI, HTTPException, Security, Depends
 from fastapi.security.api_key import APIKeyHeader, APIKey
 from fastapi.middleware.cors import CORSMiddleware
+from slowapi import Limiter, _rate_limit_exceeded_handler
+from slowapi.util import get_remote_address
+from slowapi.errors import RateLimitExceeded
 from pydantic import BaseModel, Field
 from typing import Optional, List
 import os
@@ -17,9 +20,26 @@ load_dotenv()
 API_KEY_GEMINI = os.getenv('API_KEY_GEMINI')
 API_KEY_EXA = os.getenv('API_KEY_EXA')
 API_KEY_TMDB = os.getenv('API_KEY_TMDB')
-API_KEY = os.getenv('CLIENT_API_KEY')  # Adicione esta key no render.yaml
+API_KEY = os.getenv('CLIENT_API_KEY')
+
+# API Key security
+API_KEY_NAME = "X-API-Key"
+api_key_header = APIKeyHeader(name=API_KEY_NAME, auto_error=True)
+
+async def get_api_key(api_key_header: str = Security(api_key_header)):
+    if api_key_header == API_KEY:
+        return api_key_header
+    raise HTTPException(
+        status_code=403,
+        detail="Invalid API Key"
+    )
+
+# Inicializa o limiter
+limiter = Limiter(key_func=get_remote_address)
 
 app = FastAPI(title="Media Recommendation API")
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
 app.add_middleware(
     CORSMiddleware,
@@ -90,7 +110,7 @@ class VideoRequest(BaseModel):
     media_type: str = Field(..., description="Type of media (Movie or TV Show)")
 
 # Initialize Gemini Model
-MODEL_GEMINI = Gemini(id="gemini-2.0-flash-exp", api_key=API_KEY_GEMINI)
+MODEL_GEMINI: Gemini = Gemini(id="gemini-2.0-flash-exp", api_key=API_KEY_GEMINI)
 
 # Initialize Agents
 book_recommendation_agent = Agent(
@@ -144,6 +164,7 @@ video_recommendation_agent = Agent(
 
 # Book API Endpoints
 @app.post("/books/recommendations/similar", response_model=ListBooks)
+@limiter.limit("20/minute")  # Limite de 5 requisições por minuto
 async def get_similar_books(
     request: BookRequest,
     api_key: APIKey = Depends(get_api_key)
@@ -156,7 +177,11 @@ async def get_similar_books(
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.post("/books/recommendations/custom", response_model=ListBooks)
-async def get_custom_recommendations(request: CustomPromptRequest):
+@limiter.limit("20/minute")
+async def get_custom_recommendations(
+    request: CustomPromptRequest,
+    api_key: APIKey = Depends(get_api_key)
+):
     try:
         response = book_recommendation_agent.run(request.prompt, stream=False)
         return response.content
@@ -164,7 +189,11 @@ async def get_custom_recommendations(request: CustomPromptRequest):
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.post("/books/prompts/{book_title}", response_model=Prompts)
-async def get_book_prompts(book_title: str):
+@limiter.limit("20/minute")
+async def get_book_prompts(
+    book_title: str,
+    api_key: APIKey = Depends(get_api_key)
+):
     try:
         response = prompt_recommendation_agent.run(f"Book: {book_title}", stream=False)
         return response.content
@@ -173,7 +202,11 @@ async def get_book_prompts(book_title: str):
 
 # Video API Endpoints
 @app.post("/videos/recommendations", response_model=ListVideos)
-async def get_video_recommendations(request: VideoRequest):
+@limiter.limit("5/minute")
+async def get_video_recommendations(
+    request: VideoRequest,
+    api_key: APIKey = Depends(get_api_key)
+):
     try:
         prompt = f"Search for {request.media_type} similar to {request.title}"
         response = video_recommendation_agent.run(prompt, stream=False)
