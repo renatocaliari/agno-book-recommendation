@@ -7,6 +7,16 @@ services:
     buildFilter:
       paths:
         - api/**
+    headers:
+      - path: /*
+        name: Access-Control-Allow-Origin
+        value: "https://mediamatchmaker.vercel.app"
+      - path: /*
+        name: Access-Control-Allow-Methods
+        value: "GET, POST, OPTIONS"
+      - path: /*
+        name: Access-Control-Allow-Headers
+        value: "X-API-Key, Content-Type"
     envVars:
       - key: API_KEY_GEMINI
         sync: false
@@ -17,4 +27,4 @@ services:
       - key: CLIENT_API_KEY
         sync: false
       - key: ALLOWED_ORIGINS
-        value: "http://localhost:3000,https://mediamatchmaker.vercel.app"  # Adicione aqui os domínios permitidos
+        value: "http://localhost:3000,https://mediamatchmaker.vercel.app"
