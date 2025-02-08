@@ -43,13 +43,12 @@ app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
 app.add_middleware(
     CORSMiddleware,
-     allow_origins=[
-        "https://mediamatchmaker.vercel.app", 
-        "http://localhost:3000"
-    ],
+    allow_origins=["https://mediamatchmaker.vercel.app", "http://localhost:3000"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
+    expose_headers=["*"],
+    max_age=3600,
 )
 
 # Models for Books
