@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException, Security, Depends
+from fastapi import FastAPI, HTTPException, Security, Depends, Request
 from fastapi.security.api_key import APIKeyHeader, APIKey
 from fastapi.middleware.cors import CORSMiddleware
 from slowapi import Limiter, _rate_limit_exceeded_handler
@@ -163,13 +163,14 @@ video_recommendation_agent = Agent(
 
 # Book API Endpoints
 @app.post("/books/recommendations/similar", response_model=ListBooks)
-@limiter.limit("20/minute")  # Limite de 5 requisições por minuto
+@limiter.limit("20/minute")
 async def get_similar_books(
-    request: BookRequest,
+    request: Request,  # Adiciona o parâmetro request
+    book_request: BookRequest,
     api_key: APIKey = Depends(get_api_key)
 ):
     try:
-        prompt = f"I really enjoyed {request.book_title}, can you suggest similar books?"
+        prompt = f"I really enjoyed {book_request.book_title}, can you suggest similar books?"
         response = book_recommendation_agent.run(prompt, stream=False)
         return response.content
     except Exception as e:
@@ -178,11 +179,12 @@ async def get_similar_books(
 @app.post("/books/recommendations/custom", response_model=ListBooks)
 @limiter.limit("20/minute")
 async def get_custom_recommendations(
-    request: CustomPromptRequest,
+    request: Request,  # Adiciona o parâmetro request
+    custom_request: CustomPromptRequest,
     api_key: APIKey = Depends(get_api_key)
 ):
     try:
-        response = book_recommendation_agent.run(request.prompt, stream=False)
+        response = book_recommendation_agent.run(custom_request.prompt, stream=False)
         return response.content
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
@@ -190,6 +192,7 @@ async def get_custom_recommendations(
 @app.post("/books/prompts/{book_title}", response_model=Prompts)
 @limiter.limit("20/minute")
 async def get_book_prompts(
+    request: Request,  # Adiciona o parâmetro request
     book_title: str,
     api_key: APIKey = Depends(get_api_key)
 ):
@@ -201,13 +204,14 @@ async def get_book_prompts(
 
 # Video API Endpoints
 @app.post("/videos/recommendations", response_model=ListVideos)
-@limiter.limit("5/minute")
+@limiter.limit("20/minute")
 async def get_video_recommendations(
-    request: VideoRequest,
+    request: Request,  # Adiciona o parâmetro request
+    video_request: VideoRequest,
     api_key: APIKey = Depends(get_api_key)
 ):
     try:
-        prompt = f"Search for {request.media_type} similar to {request.title}"
+        prompt = f"Search for {video_request.media_type} similar to {video_request.title}"
         response = video_recommendation_agent.run(prompt, stream=False)
         return response.content
     except Exception as e:
