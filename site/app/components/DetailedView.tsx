@@ -51,7 +51,9 @@ export default function DetailedView({ item, onClose, mediaType, colorClass }: D
                     <Tooltip>
                       <TooltipTrigger>
                         <span className="bg-black text-white px-3 py-2 rounded-full font-bold border-2 border-white">
-                          ⭐ {item.imdbRating.toFixed(1)} IMDB
+                          ⭐ {typeof item.imdbRating === 'number' 
+                            ? item.imdbRating.toFixed(1) 
+                            : Number(item.imdbRating).toFixed(1)} IMDB
                         </span>
                       </TooltipTrigger>
                       <TooltipContent>
