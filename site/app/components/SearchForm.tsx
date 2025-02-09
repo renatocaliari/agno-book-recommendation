@@ -10,12 +10,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "../../components/ui/popover"
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "../../components/ui/tooltip"
+// import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "../../components/ui/tooltip" // Removido
 
 type SearchFormProps = {
   onSearch: (query: string, mediaType: MediaType, isCustomPrompt: boolean) => void;

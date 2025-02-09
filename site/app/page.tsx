@@ -3,25 +3,24 @@
 import { useState } from "react"
 import SearchForm from "./components/SearchForm"
 import ResultsList from "./components/ResultsList"
-import ErrorMessage from "./components/ErrorMessage"
-import LoadingMessage from "./components/LoadingMessage"
 import { searchMedia } from "./services/mediaService"
 import type { MediaType, SearchResult } from "./types"
 
 export default function Home() {
   const [results, setResults] = useState<SearchResult[]>([])
-  const [mediaType, setMediaType] = useState<MediaType>("book")
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [hasSearched, setHasSearched] = useState(false)
+  const [mediaType, setMediaType] = useState<MediaType>("book")
 
   const handleSearch = async (query: string, type: MediaType, isCustomPrompt: boolean) => {
     setIsLoading(true)
     setHasSearched(true)
+    setMediaType(type)
     try {
       setError(null)
       const data = await searchMedia({ query, mediaType: type, isCustomPrompt })
-      setResults(data.books || data.videos || [])
+      setResults(data)
     } catch (err) {
       setError('Failed to fetch results. Please try again.')
       console.error('Search error:', err)

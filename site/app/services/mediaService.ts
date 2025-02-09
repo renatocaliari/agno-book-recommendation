@@ -256,10 +256,9 @@ interface SearchRequest {
   mediaType: MediaType;
 }
 
-export async function searchMedia({ query, isCustomPrompt, mediaType }: SearchRequest) {
+export async function searchMedia({ query, isCustomPrompt, mediaType }: SearchRequest): Promise<SearchResult[]> {
   let endpoint = '';
   
-  // Determina o endpoint correto baseado no tipo de mídia e se é custom prompt
   if (mediaType === 'book') {
     endpoint = isCustomPrompt 
       ? '/books/recommendations/custom'
@@ -286,9 +285,73 @@ export async function searchMedia({ query, isCustomPrompt, mediaType }: SearchRe
   });
 
   if (!response.ok) {
-    throw new Error(`Error: ${response.status}`);
+    throw new MediaServiceError(`Failed to fetch recommendations`, 'API_ERROR');
   }
 
-  return response.json();
+  const data = await response.json();
+
+  if (mediaType === 'book') {
+    const booksData = data as BooksAPIResponse;
+    if (!booksData.books || !Array.isArray(booksData.books)) {
+      throw new MediaServiceError('Invalid book response format', 'API_ERROR');
+    }
+
+    return booksData.books.map((book: BookResponse) => ({
+      id: book.title || 'Unknown',
+      title: book.title || 'Unknown',
+      type: 'book' as MediaType,
+      year: book.publication_year ? parseInt(book.publication_year) : 0,
+      goodreadsRating: book.goodreads_rating ? parseFloat(book.goodreads_rating) : undefined,
+      storygraphRating: book.storygraph_rating ? parseFloat(book.storygraph_rating) : undefined,
+      genre: book.genre || [],
+      similarityType: ((): "plot & characters" | "genre & themes" | "author & writing style" => {
+        switch(book.similarity_type?.toLowerCase()) {
+          case "genre & themes": return "genre & themes";
+          case "author & writing style": return "author & writing style";
+          default: return "plot & characters";
+        }
+      })(),
+      similarityJustification: book.explanation || 'No explanation provided',
+      details: book.plot_summary || 'No details available',
+      author: book.author,
+      pageCount: book.page_count ? parseInt(book.page_count) : undefined,
+      contentAdvisories: book.content_advisories || [],
+      awards: book.awards || [],
+      seriesInfo: book.series_info,
+      audiobookAvailable: book.audiobook_available,
+      upcomingAdaptations: book.upcoming_adaptations,
+      diversityHighlight: book.diversity_highlight,
+      triggerWarnings: book.trigger_warnings || []
+    }));
+  } else {
+    const videosData = data as VideosAPIResponse;
+    if (!videosData.videos || !Array.isArray(videosData.videos)) {
+      throw new MediaServiceError('Invalid video response format', 'API_ERROR');
+    }
+
+    return videosData.videos.map((video: VideoResponse) => ({
+      id: video.title || 'Unknown',
+      title: video.title || 'Unknown',
+      type: video.type as MediaType || 'Movie',
+      year: video.release_year ? parseInt(video.release_year) : 0,
+      imdbRating: video.imdb_rating,
+      tmdbRating: video.tmdb_rating,
+      genre: video.genre || [],
+      similarityType: ((): "plot & characters" | "genre & themes" | "author & writing style" => {
+        switch(video.similarity_type?.toLowerCase()) {
+          case "genre & themes": return "genre & themes";
+          case "author & writing style": return "author & writing style";
+          default: return "plot & characters";
+        }
+      })(),
+      similarityJustification: video.explanation || 'No explanation provided',
+      details: video.plot_summary || 'No details available',
+      directors: video.directors || [],
+      actors: video.actors || [],
+      runtime: video.runtime ? parseInt(video.runtime) : undefined,
+      seasons: video.series_season,
+      streamingServices: video.streaming_services || []
+    }));
+  }
 }
 
