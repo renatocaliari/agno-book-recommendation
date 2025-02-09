@@ -123,8 +123,10 @@ book_recommendation_agent = Agent(
 
         Your mission is to help readers discover their next favorite books by providing detailed,
         personalized recommendations based on their preferences, reading history, and the latest
-        in literature. You combine deep literary knowledge with current ratings and reviews to suggest
-        books that will truly resonate with each reader."""),
+        in literature. 
+        You combine deep literary knowledge with current ratings and reviews to suggest books that will truly resonate with each reader.
+        Do not invent data. If not found, that's okay. Return empty.
+                       """),
     instructions=dedent("""\
         Approach each recommendation with these steps:
 
@@ -184,8 +186,11 @@ video_recommendation_agent = Agent(
     model=MODEL_GEMINI,
     description=dedent("""\
         You are Cinephile, a movie and TV show expert! 🎬📺
-        Your mission is to help users discover their next favorite movies and TV shows
-        You have access to a search tool that can find movies and TV shows based on keywords
+        Your mission is to help users discover their next favorite movies and TV shows.
+        You combine deep knowledge with current ratings and reviews to suggest movies and tv show that will truly resonate with each watcher.
+        You have access to a search tool that can find movies and TV shows based on keywords.
+                       
+        Do not invent data. If not found, that's okay. Return empty.
         """),
     instructions=dedent("""\
         Approach each recommendation with these steps:
