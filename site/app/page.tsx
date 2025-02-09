@@ -18,6 +18,7 @@ export default function Home() {
   const handleSearch = async (query: string, type: MediaType) => {
     setIsLoading(true)
     setError(null)
+    setHasSearched(true)  // Set to true when search is attempted
     try {
       const searchResults = await searchMedia(query, type)
       setResults(searchResults)
