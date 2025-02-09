@@ -255,6 +255,8 @@ async def get_custom_recommendations(
 ):
     try:
         response = book_recommendation_agent.run(custom_request.prompt, stream=False)
+        print("response.content.books:")
+        print(response.content.books)
         return response.content
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
