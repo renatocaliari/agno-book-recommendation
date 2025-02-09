@@ -311,9 +311,32 @@ async def get_custom_video_recommendations(
 ):
     try:
         response = video_recommendation_agent.run(custom_request.prompt, stream=False)
+        
+        # Validação da resposta
+        if not response or not response.content:
+            raise HTTPException(
+                status_code=500,
+                detail="Empty response from recommendation agent"
+            )
+            
+        # Garantir que a resposta tem a estrutura esperada
+        if not hasattr(response.content, 'videos') or not response.content.videos:
+            # Criar uma resposta vazia válida se não houver recomendações
+            return ListVideos(videos=[])
+            
+        # Log para debug
+        print("Response content type:", type(response.content))
+        print("Response content:", response.content)
+        
         return response.content
+        
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        print(f"Error details: {str(e)}")
+        print(f"Response content: {response.content if 'response' in locals() else 'No response'}")
+        raise HTTPException(
+            status_code=500,
+            detail=f"Failed to process video recommendations: {str(e)}"
+        )
 
 # Health Check Endpoint
 @app.get("/health")
