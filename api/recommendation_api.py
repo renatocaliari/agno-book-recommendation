@@ -147,7 +147,9 @@ book_recommendation_agent = Agent(
         - Page count
         - Brief, engaging plot summary
         - Content advisories with emoji representing each one
+        - Trigger Warning (if applicable; should be different from Content Advisories)
         - Awards and recognition
+        - All Streaming services
 
         4. Extra Features ✨
         - Include series information if applicable
@@ -209,6 +211,7 @@ video_recommendation_agent = Agent(
         - Streaming services
         - Brief, engaging plot summary
         - Content advisories with emoji representing each one
+        - Trigger Warning (if applicable; should be different from Content Advisories)
         - Qty of seasons (if applicable)
         - Awards and recognition
 

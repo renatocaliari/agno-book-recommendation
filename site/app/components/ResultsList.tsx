@@ -9,6 +9,7 @@ type ResultsListProps = {
   results: SearchResult[]
   mediaType: MediaType
   isLoading: boolean
+  hasSearched: boolean
 }
 
 const getMediaColor = (type: MediaType, index: number): { bg: string, text: string } => {
@@ -54,14 +55,14 @@ const getMediaEmoji = (type: MediaType) => {
   }
 }
 
-export default function ResultsList({ results, mediaType, isLoading }: ResultsListProps) {
+export default function ResultsList({ results, mediaType, isLoading, hasSearched }: ResultsListProps) {
   const [selectedItem, setSelectedItem] = useState<SearchResult | null>(null)
 
   if (isLoading) {
     return <ResultsSkeleton />
   }
 
-  if (results.length === 0) {
+  if (hasSearched && results.length === 0) {
     return (
       <div className="text-center py-12">
         <p className="text-gray-600">No results found. Try another search!</p>

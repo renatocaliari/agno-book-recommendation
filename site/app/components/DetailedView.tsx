@@ -99,7 +99,13 @@ export default function DetailedView({ item, onClose, mediaType, colorClass }: D
 
               <Tooltip>
                 <TooltipTrigger>
-                  <span className="bg-black text-white px-3 py-2 text-base font-bold">{item.genre}</span>
+                  <div className="flex gap-1 flex-wrap">
+                    {item.genre.map((genre, index) => (
+                      <span key={index} className="bg-black text-white px-2 py-1 text-sm font-medium rounded-sm">
+                        {genre}
+                      </span>
+                    ))}
+                  </div>
                 </TooltipTrigger>
                 <TooltipContent>
                   <p>Genre</p>
