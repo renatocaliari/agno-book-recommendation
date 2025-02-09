@@ -249,16 +249,23 @@ async def get_similar_books(
 @app.post("/books/recommendations/custom", response_model=ListBooks)
 @limiter.limit("20/minute")
 async def get_custom_recommendations(
-    request: Request,  # Adiciona o parâmetro request
+    request: Request,
     custom_request: CustomPromptRequest,
     api_key: APIKey = Depends(get_api_key)
 ):
     try:
         response = book_recommendation_agent.run(custom_request.prompt, stream=False)
-        print("response.content.books:")
-        print(response.content.books)
+        print("Full response content:")
+        print(response.content)
+        print("\nResponse content type:", type(response.content))
+        print("\nBooks data:")
+        for book in response.content.books:
+            print(f"\nBook: {book.title}")
+            print(f"Fields: {book.model_dump()}")
         return response.content
     except Exception as e:
+        print(f"Error details: {str(e)}")
+        print(f"Response content: {response.content if 'response' in locals() else 'No response'}")
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.post("/books/prompts/{book_title}", response_model=Prompts)
