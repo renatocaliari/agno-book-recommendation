@@ -79,7 +79,7 @@ class BookRequest(BaseModel):
     book_title: str = Field(..., description="The title of the book to find recommendations for")
 
 class CustomPromptRequest(BaseModel):
-    prompt: str = Field(..., description="Custom prompt for book recommendations")
+    prompt: str = Field(..., description="Custom prompt for recommendations")
 
 class Prompts(BaseModel):
     prompts: list[str] = Field(default_factory=list, description="A list of prompts")
@@ -283,6 +283,19 @@ async def get_video_recommendations(
         prompt = f"Search for {video_request.media_type} similar to {video_request.title}"
         response = video_recommendation_agent.run(prompt, stream=False)
         # Garantir que estamos retornando o objeto ListVideos corretamente
+        return response.content
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/videos/recommendations/custom", response_model=ListVideos)
+@limiter.limit("20/minute")
+async def get_custom_video_recommendations(
+    request: Request,
+    custom_request: CustomPromptRequest,
+    api_key: APIKey = Depends(get_api_key)
+):
+    try:
+        response = video_recommendation_agent.run(custom_request.prompt, stream=False)
         return response.content
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

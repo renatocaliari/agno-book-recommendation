@@ -48,8 +48,12 @@ interface VideosAPIResponse {
   videos: VideoResponse[];
 }
 
-const API_BASE_URL = 'https://recommendation-api-6yay.onrender.com';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
 const API_KEY = process.env.NEXT_PUBLIC_CLIENT_API_KEY;
+
+if (!API_BASE_URL) {
+  console.error('API URL não encontrada! Verifique se o arquivo .env.local está configurado corretamente.');
+}
 
 if (!API_KEY) {
   console.error('API Key não encontrada! Verifique se o arquivo .env.local está configurado corretamente.');
@@ -246,13 +250,45 @@ const fetchMoviesData = async (query: string): Promise<SearchResult[]> => {
   }
 };
 
-const searchMedia = async (query: string, type: MediaType): Promise<SearchResult[]> => {
-  if (type === 'book') {
-    return fetchBooksData(query);
-  } else {
-    return fetchMoviesData(query);
-  }
-};
+interface SearchRequest {
+  query: string;
+  isCustomPrompt: boolean;
+  mediaType: MediaType;
+}
 
-export { searchMedia };
+export async function searchMedia({ query, isCustomPrompt, mediaType }: SearchRequest) {
+  let endpoint = '';
+  
+  // Determina o endpoint correto baseado no tipo de mídia e se é custom prompt
+  if (mediaType === 'book') {
+    endpoint = isCustomPrompt 
+      ? '/books/recommendations/custom'
+      : '/books/recommendations';
+  } else {
+    endpoint = isCustomPrompt
+      ? '/videos/recommendations/custom'
+      : '/videos/recommendations';
+  }
+
+  const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-API-Key': API_KEY || '',
+    },
+    body: JSON.stringify(
+      isCustomPrompt
+        ? { prompt: query }
+        : mediaType === 'book'
+          ? { title: query }
+          : { title: query, media_type: mediaType }
+    ),
+  });
+
+  if (!response.ok) {
+    throw new Error(`Error: ${response.status}`);
+  }
+
+  return response.json();
+}
 

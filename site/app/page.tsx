@@ -15,45 +15,31 @@ export default function Home() {
   const [error, setError] = useState<string | null>(null)
   const [hasSearched, setHasSearched] = useState(false)
 
-  const handleSearch = async (query: string, type: MediaType) => {
+  const handleSearch = async (query: string, type: MediaType, isCustomPrompt: boolean) => {
     setIsLoading(true)
-    setError(null)
-    setHasSearched(true)  // Set to true when search is attempted
+    setHasSearched(true)
     try {
-      const searchResults = await searchMedia(query, type)
-      setResults(searchResults)
-      setMediaType(type)
+      setError(null)
+      const data = await searchMedia({ query, mediaType: type, isCustomPrompt })
+      setResults(data.books || data.videos || [])
     } catch (err) {
-      if (err instanceof Error) {
-        setError(err.message)
-      } else {
-        setError('An unexpected error occurred')
-      }
-      setResults([])
+      setError('Failed to fetch results. Please try again.')
+      console.error('Search error:', err)
     } finally {
       setIsLoading(false)
     }
   }
 
   return (
-    <main className="min-h-screen bg-background px-4 py-6 sm:p-8">
-      <div className="max-w-4xl mx-auto w-full">
-        <SearchForm onSearch={handleSearch} />
-        
-        {error && <ErrorMessage message={error} />}
-        
-        {!error && (
-          <>
-            {isLoading && <LoadingMessage />}
-            <ResultsList 
-              results={results} 
-              mediaType={mediaType} 
-              isLoading={isLoading}
-              hasSearched={hasSearched}
-            />
-          </>
-        )}
-      </div>
+    <main className="container mx-auto px-4 py-8">
+      <SearchForm onSearch={handleSearch} />
+      {error && <div className="text-red-500 mb-4">{error}</div>}
+      <ResultsList 
+        results={results} 
+        mediaType={mediaType}
+        isLoading={isLoading}
+        hasSearched={hasSearched}
+      />
     </main>
   )
 }

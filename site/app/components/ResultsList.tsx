@@ -4,6 +4,7 @@ import DetailedView from "./DetailedView"
 import { Maximize2 } from "lucide-react"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import ResultsSkeleton from "./ResultsSkeleton"
+import LoadingMessage from "./LoadingMessage"
 
 type ResultsListProps = {
   results: SearchResult[]
@@ -59,7 +60,12 @@ export default function ResultsList({ results, mediaType, isLoading, hasSearched
   const [selectedItem, setSelectedItem] = useState<SearchResult | null>(null)
 
   if (isLoading) {
-    return <ResultsSkeleton />
+    return (
+      <div>
+        <LoadingMessage />
+        <ResultsSkeleton />
+      </div>
+    )
   }
 
   if (hasSearched && results.length === 0) {
