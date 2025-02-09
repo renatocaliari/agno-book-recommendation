@@ -117,7 +117,7 @@ export default function ResultsList({ results, mediaType, isLoading, hasSearched
                     </Tooltip>
 
                     {item.genre.map((genreItem, genreIndex) => (
-                      <Tooltip key={genreIndex}>
+                      <Tooltip key={`${item.id}-genre-${genreIndex}`}>  {/* Adicionada key única */}
                         <TooltipTrigger>
                           <span className="bg-black text-white px-2 py-1 text-sm font-bold">{genreItem}</span>
                         </TooltipTrigger>
@@ -128,7 +128,7 @@ export default function ResultsList({ results, mediaType, isLoading, hasSearched
                     ))}
 
                     {(mediaType === "movie" || mediaType === "tv show") && item.streamingServices && item.streamingServices.length > 0 && item.streamingServices.map((service, index) => (
-                      <Tooltip key={index}>
+                      <Tooltip key={`${item.id}-streaming-${index}`}>  {/* Adicionada key única */}
                         <TooltipTrigger>
                           <span className="bg-black text-white px-2 py-1 text-sm font-bold">{service}</span>
                         </TooltipTrigger>

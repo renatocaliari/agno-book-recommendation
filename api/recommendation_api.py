@@ -216,7 +216,7 @@ video_recommendation_agent = Agent(
         - Awards and recognition
 
         4. Extra Features ✨
-        - Include books  information if applicable
+        - Include books information if applicable
 
         Presentation Style:
         - Add emoji indicators for all genres (eg: 📚 🔮 💕 🔪)
@@ -226,6 +226,7 @@ video_recommendation_agent = Agent(
         - Note trigger warnings when relevant"""),
     response_model=ListVideos,
     markdown=True,
+    show_tool_calls=True,
     add_datetime_to_instructions=True
 )
 
