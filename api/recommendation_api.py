@@ -11,7 +11,6 @@ from dotenv import load_dotenv
 from textwrap import dedent
 from decimal import Decimal
 
-import lunary
 from traceloop.sdk import Traceloop
 
 from agno.agent import Agent
@@ -24,7 +23,6 @@ API_KEY_GEMINI = os.getenv('API_KEY_GEMINI')
 API_KEY_EXA = os.getenv('API_KEY_EXA')
 API_KEY_TMDB = os.getenv('API_KEY_TMDB')
 API_KEY = os.getenv('CLIENT_API_KEY')
-API_KEY_LUNARY_PUBLIC=os.getenv('LUNARY_PUBLIC_KEY')
 API_KEY_TRACELOOP=os.getenv('API_KEY_TRACELOOP')
 
 # API Key security
@@ -247,7 +245,6 @@ video_recommendation_agent = Agent(
 
 # Book API Endpoints
 @app.post("/books/recommendations/similar", response_model=ListBooks)
-@lunary.agent()
 @limiter.limit("20/minute")
 async def get_similar_books(
     request: Request,
@@ -263,7 +260,6 @@ async def get_similar_books(
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.post("/books/recommendations/custom", response_model=ListBooks)
-@lunary.agent()
 @limiter.limit("20/minute")
 async def get_custom_recommendations(
     request: Request,
@@ -286,7 +282,6 @@ async def get_custom_recommendations(
         raise HTTPException(status_code=500, detail=str(e))
 
 # @app.post("/books/prompts/{book_title}", response_model=Prompts)
-# @lunary.agent()
 # @limiter.limit("20/minute")
 # async def get_book_prompts(
 #     request: Request,  # Adiciona o parâmetro request
@@ -301,7 +296,6 @@ async def get_custom_recommendations(
 
 # Video API Endpoints
 @app.post("/videos/recommendations/similar", response_model=ListVideos)
-@lunary.agent()
 @limiter.limit("20/minute")
 async def get_video_recommendations(
     request: Request,
@@ -317,7 +311,6 @@ async def get_video_recommendations(
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.post("/videos/recommendations/custom", response_model=ListVideos)
-@lunary.agent()
 @limiter.limit("20/minute")
 async def get_custom_video_recommendations(
     request: Request,
