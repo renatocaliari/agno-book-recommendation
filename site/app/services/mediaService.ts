@@ -271,10 +271,7 @@ export async function searchMedia({ query, isCustomPrompt, mediaType }: SearchRe
 
   const response = await fetch(`${API_BASE_URL}${endpoint}`, {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'X-API-Key': API_KEY || '',
-    },
+    headers: getHeaders(), // Usando a função getHeaders ao invés de definir diretamente
     body: JSON.stringify(
       isCustomPrompt
         ? { prompt: query }
