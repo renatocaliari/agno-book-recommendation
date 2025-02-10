@@ -180,16 +180,21 @@ export default function SearchForm({ onSearch }: SearchFormProps) {
             {isCustomPrompt && (
               <Popover open={isPopoverOpen} onOpenChange={setIsPopoverOpen}>
                 <PopoverTrigger asChild>
-                  <button
+                  <Button
                     type="button"
-                    className="absolute right-3 top-1/2 -translate-y-1/2"
-                    onClick={(e) => e.preventDefault()}
+                    variant="ghost"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 h-6 w-6 p-0 hover:bg-transparent"
+                    onClick={(e) => {
+                      e.preventDefault()
+                      e.stopPropagation()
+                    }}
                   >
-                    <HelpCircle className="h-6 w-6 text-gray-500" />
-                  </button>
+                    <HelpCircle className="h-6 w-6 text-gray-500 hover:text-gray-700" />
+                  </Button>
                 </PopoverTrigger>
                 <PopoverContent 
                   side="right" 
+                  align="start"
                   className="w-96 p-4 max-h-[80vh] overflow-y-auto"
                   sideOffset={20}
                 >
