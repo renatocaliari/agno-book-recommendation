@@ -12,6 +12,8 @@ from textwrap import dedent
 from decimal import Decimal
 
 from traceloop.sdk import Traceloop
+from traceloop.sdk.decorators import agent, tool
+
 
 from agno.agent import Agent
 from agno.models.google import Gemini
@@ -40,6 +42,12 @@ async def get_api_key(api_key_header: str = Security(api_key_header)):
 # Inicializa o limiter
 limiter = Limiter(key_func=get_remote_address)
 
+Traceloop.init(
+  disable_batch=True, 
+  api_key=API_KEY_TRACELOOP
+)
+
+
 app = FastAPI(title="Media Recommendation API")
 app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
@@ -54,10 +62,6 @@ app.add_middleware(
     max_age=3600,
 )
 
-Traceloop.init(
-  disable_batch=True, 
-  api_key=API_KEY_TRACELOOP
-)
 
 # Models for Books
 class Book(BaseModel):
@@ -246,6 +250,7 @@ video_recommendation_agent = Agent(
 # Book API Endpoints
 @app.post("/books/recommendations/similar", response_model=ListBooks)
 @limiter.limit("20/minute")
+@agent(name="get_similar_books")
 async def get_similar_books(
     request: Request,
     book_request: BookRequest,
@@ -261,6 +266,7 @@ async def get_similar_books(
 
 @app.post("/books/recommendations/custom", response_model=ListBooks)
 @limiter.limit("20/minute")
+@agent(name="get_custom_books_recommendations")
 async def get_custom_recommendations(
     request: Request,
     custom_request: CustomPromptRequest,
@@ -297,6 +303,7 @@ async def get_custom_recommendations(
 # Video API Endpoints
 @app.post("/videos/recommendations/similar", response_model=ListVideos)
 @limiter.limit("20/minute")
+@agent(name="get_similar_videos")
 async def get_video_recommendations(
     request: Request,
     video_request: VideoRequest,
@@ -312,7 +319,8 @@ async def get_video_recommendations(
 
 @app.post("/videos/recommendations/custom", response_model=ListVideos)
 @limiter.limit("20/minute")
-async def get_custom_video_recommendations(
+@agent(name="get_custom_video_recommendations")
+async def get_custom_videos_recommendations(
     request: Request,
     custom_request: CustomPromptRequest,
     api_key: APIKey = Depends(get_api_key)
