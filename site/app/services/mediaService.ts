@@ -262,11 +262,11 @@ export async function searchMedia({ query, isCustomPrompt, mediaType }: SearchRe
   if (mediaType === 'book') {
     endpoint = isCustomPrompt 
       ? '/books/recommendations/custom'
-      : '/books/recommendations';
+      : '/books/recommendations/similar';
   } else {
     endpoint = isCustomPrompt
       ? '/videos/recommendations/custom'
-      : '/videos/recommendations';
+      : '/videos/recommendations/similar';
   }
 
   const response = await fetch(`${API_BASE_URL}${endpoint}`, {

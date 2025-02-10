@@ -8,3 +8,5 @@ google-generativeai
 fastapi
 uvicorn
 slowapi
+traceloop-sdk
+lunary

@@ -11,6 +11,9 @@ from dotenv import load_dotenv
 from textwrap import dedent
 from decimal import Decimal
 
+import lunary
+from traceloop.sdk import Traceloop
+
 from agno.agent import Agent
 from agno.models.google import Gemini
 from agno.tools.exa import ExaTools
@@ -21,6 +24,8 @@ API_KEY_GEMINI = os.getenv('API_KEY_GEMINI')
 API_KEY_EXA = os.getenv('API_KEY_EXA')
 API_KEY_TMDB = os.getenv('API_KEY_TMDB')
 API_KEY = os.getenv('CLIENT_API_KEY')
+API_KEY_LUNARY_PUBLIC=os.getenv('LUNARY_PUBLIC_KEY')
+API_KEY_TRACELOOP=os.getenv('API_KEY_TRACELOOP')
 
 # API Key security
 API_KEY_NAME = "X-API-Key"
@@ -49,6 +54,11 @@ app.add_middleware(
     allow_headers=["*"],
     expose_headers=["*"],
     max_age=3600,
+)
+
+Traceloop.init(
+  disable_batch=True, 
+  api_key=API_KEY_TRACELOOP
 )
 
 # Models for Books
@@ -237,6 +247,7 @@ video_recommendation_agent = Agent(
 
 # Book API Endpoints
 @app.post("/books/recommendations/similar", response_model=ListBooks)
+@lunary.agent()
 @limiter.limit("20/minute")
 async def get_similar_books(
     request: Request,
@@ -252,6 +263,7 @@ async def get_similar_books(
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.post("/books/recommendations/custom", response_model=ListBooks)
+@lunary.agent()
 @limiter.limit("20/minute")
 async def get_custom_recommendations(
     request: Request,
@@ -273,21 +285,23 @@ async def get_custom_recommendations(
         print(f"Response content: {response.content if 'response' in locals() else 'No response'}")
         raise HTTPException(status_code=500, detail=str(e))
 
-@app.post("/books/prompts/{book_title}", response_model=Prompts)
-@limiter.limit("20/minute")
-async def get_book_prompts(
-    request: Request,  # Adiciona o parâmetro request
-    book_title: str,
-    api_key: APIKey = Depends(get_api_key)
-):
-    try:
-        response = prompt_recommendation_agent.run(f"Book: {book_title}", stream=False)
-        return response.content
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+# @app.post("/books/prompts/{book_title}", response_model=Prompts)
+# @lunary.agent()
+# @limiter.limit("20/minute")
+# async def get_book_prompts(
+#     request: Request,  # Adiciona o parâmetro request
+#     book_title: str,
+#     api_key: APIKey = Depends(get_api_key)
+# ):
+#     try:
+#         response = prompt_recommendation_agent.run(f"Book: {book_title}", stream=False)
+#         return response.content
+#     except Exception as e:
+#         raise HTTPException(status_code=500, detail=str(e))
 
 # Video API Endpoints
-@app.post("/videos/recommendations", response_model=ListVideos)
+@app.post("/videos/recommendations/similar", response_model=ListVideos)
+@lunary.agent()
 @limiter.limit("20/minute")
 async def get_video_recommendations(
     request: Request,
@@ -303,6 +317,7 @@ async def get_video_recommendations(
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.post("/videos/recommendations/custom", response_model=ListVideos)
+@lunary.agent()
 @limiter.limit("20/minute")
 async def get_custom_video_recommendations(
     request: Request,
